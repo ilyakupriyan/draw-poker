@@ -95,9 +95,9 @@ int testDeckShuffle() {
 }
 
 //функция выдачи карт игроку из колоды
-void deal(int deck[][2], int players_card[][2], int issued_cards) {
+void deal(int deck[][2], int players_card[][2], int *issued_cards) {
 	for (int i = 0; i < 5; i++, issued_cards++) {
-		players_card[i][0] = deck[issued_cards][0];
-		players_card[i][1] = deck[issued_cards][1];
+		players_card[i][0] = deck[*issued_cards][0];
+		players_card[i][1] = deck[*issued_cards][1];
 	}
 }
