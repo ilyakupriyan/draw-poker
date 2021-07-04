@@ -5,17 +5,17 @@
 int main() {
 	std::string comb, cont = "Yes";
 
-	//определение колоды карт
 	int deck[52][2]; //первый индекс - номер карты, второй: 0 - масть, 1 - номинал
-
 	int user[5][2]; //карты пользователя
 	int*** card_bots; //указатель на карты ботов
-	int num_bot;
+	int num_bot, issued_cards; //количество ботов и счетчик выданных карт
 
 	while (cont != "NO") {
 		//инициализация и тасование колоды карт
 		deckInit(deck);
 		deckShuffle(deck);
+
+		issued_cards = 0;
 
 		//ввод количества ботов
 		std::cout << "Number of bots: ";
@@ -25,6 +25,7 @@ int main() {
 			std::cin >> num_bot;
 		}
 
+
 		//создание ботов
 		card_bots = new int**[num_bot];
 		for (int bot = 0; bot < num_bot; bot++) {
@@ -32,7 +33,6 @@ int main() {
 			for (int cards = 0; cards < 5; cards++)
 				card_bots[bot][cards] = new int[2];
 		}
-
 
 
 
