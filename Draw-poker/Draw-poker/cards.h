@@ -14,9 +14,10 @@ int testDeckInit();
 void deckShuffle(int deck[][2]);
 int testDeckShuffle();
 void deal(int deck[][2], int players_card[][2], int* issued_cards);
-void changeCard(int deck[][2], int players_card[][2], int* issued_cards, changeC player);
+void changeCard(int deck[][2], int players_card[][2], int* issued_cards, changeC* player);
 int addChange(std::string number, changeC* head, changeC* new_card);
 void testChooseChange();
 void deleteChange(changeC* head);
+int replayChange(changeC* head);
 
 #endif

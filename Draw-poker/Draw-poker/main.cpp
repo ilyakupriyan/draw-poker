@@ -69,15 +69,22 @@ int main() {
 		printCards(user);
 		std::cout << std::endl << "Numbers of the cards that you want to change separate by a space (key \"enter\" is the end of input): ";
 		getline(std::cin, numbers, '\n');
-		for (int card = 1; card <= 5 && numbers != ""; card++) {
+		for (int card = 1; card <= 5; card++) {
 			std::string buf; //буферная строка для выделения отдельных чисел
 			changeC* new_card; //адрес на новый номер карты для замены
 
 			//отыскиваем пробелы в строке
 			int pos = numbers.find(" ");
 			if (pos == -1) { //если пробелов нет
-				if (numbers == "")
+				if (numbers == "") {
+					if (replayChange(player_change) == -1) { 
+						std::cout << "Please, enter the different numbers of cards!" << std::endl;
+						getline(std::cin, numbers, '\n');
+						card = 1;
+						continue;
+					}
 					break;
+				}
 				buf = numbers;
 				numbers.clear();
 			}
@@ -96,6 +103,7 @@ int main() {
 				getline(std::cin, numbers, '\n');
 			}
 		}
+		changeCard(deck, user, &issued_cards, player_change);
 
 		//освобождение памяти, выделенную под ботов, после окончание игры
 		for (int bot = 0; bot < num_bot; bot++) {

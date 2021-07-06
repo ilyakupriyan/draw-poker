@@ -138,9 +138,31 @@ void testChooseChange() {
 
 }
 
-//функция замены карт
-void changeCard(int deck[][2], int players_card[][2], int* issued_cards, changeC player) {
+//функция проверки на повторение номеров карт
+int replayChange(changeC* head) {
+	changeC* copy1 = head, *copy2 = head->next_card;
+	do {
+		copy2 = copy1->next_card;
+		while (copy2 != NULL) {
+			if (copy1->card == copy2->card) {
+				return -1;
+			}
+			copy2 = copy2->next_card;
+		}
+		copy1 = copy1->next_card;
+	} while (copy1->next_card == copy2 && copy2 == NULL);
+	return 0;
+}
 
+//функция замены карт
+void changeCard(int deck[][2], int players_card[][2], int* issued_cards, changeC* player) {
+	changeC* copy = player;
+	while (copy != NULL) {
+		players_card[player->card - 1][0] = deck[*issued_cards][0];
+		players_card[player->card - 1][1] = deck[*issued_cards][1];
+		copy = copy->next_card;
+		(*issued_cards)++;
+	}
 }
 
 //функция обнуления списка с номерами замен карт
