@@ -1,15 +1,15 @@
 ﻿#include <iostream>
 #include <time.h>
+#include <string>
 #include <iomanip>
 #include <conio.h>
 
 using namespace std;
 
-//структура отвечающая за одну карту
-struct card {
-	char* suit_card;
-	char* nomanal_card;
-	card* next_card;
+//структура для замены карт игрока
+struct changeC {
+	int card = 0;
+	changeC* next_card = NULL;
 };
 
 const char* suit[] = { "Hearts", "Diamond", "Spades", "Club" }; //указатели на названия масти карт
@@ -96,8 +96,63 @@ int testDeckShuffle() {
 
 //функция выдачи карт игроку из колоды
 void deal(int deck[][2], int players_card[][2], int *issued_cards) {
-	for (int i = 0; i < 5; i++, issued_cards++) {
+	for (int i = 0; i < 5; i++, (*issued_cards)++) {
 		players_card[i][0] = deck[*issued_cards][0];
 		players_card[i][1] = deck[*issued_cards][1];
+	}
+}
+
+//функиця добавления номера карты для замены
+int addChange(std::string number, changeC* head, changeC* new_card) {
+	changeC* copy = head;
+	//если строка пустая, то прекратить выполнение функции
+	if (number != "") {
+
+		//ищем последний элемент списка и добавляем новый
+		while (copy->next_card != NULL)
+			copy = copy->next_card;
+		copy->next_card = new_card;
+
+		//проверка на ввод корректного числа
+		for (int ch = 0; number[ch] != '\0'; ch++) {
+			if (!isdigit(number[ch])) {
+				return -1;
+			}
+		}
+
+		int num = stoi(number);
+		if (num > 5 || num < 1)
+			return -1;
+		copy->card = stoi(number);
+	}
+	return 0;
+}
+
+//функция теста ChooseChangeCard
+void testChooseChange() {
+	changeC *head;
+	head = new changeC;
+	//int test = chooseChange(head);
+	//cout << test << endl;
+	delete head;
+
+}
+
+//функция замены карт
+void changeCard(int deck[][2], int players_card[][2], int* issued_cards, changeC player) {
+
+}
+
+//функция обнуления списка с номерами замен карт
+void deleteChange(changeC* head) {
+	while (head->next_card != NULL) {
+		changeC* copy1 = head;
+		changeC* copy2 = head;
+		while (copy1->next_card != NULL)
+			copy1 = copy1->next_card;
+		while (copy2->next_card != copy1)
+			copy2 = copy2->next_card;
+		copy2->next_card = NULL;
+		delete copy1;
 	}
 }
