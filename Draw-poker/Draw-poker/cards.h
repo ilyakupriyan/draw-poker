@@ -19,5 +19,6 @@ int addChange(std::string number, changeC* head, changeC* new_card);
 void testChooseChange();
 void deleteChange(changeC* head);
 int replayChange(changeC* head);
+COORD getConsoleCursorPosition(HANDLE hConsoleOutput);
 
 #endif

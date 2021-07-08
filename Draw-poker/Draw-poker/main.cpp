@@ -1,18 +1,13 @@
 ﻿#include <iostream>
+#include <windows.h>
+#include <time.h>
+#include <iomanip>
 #include <string>
 #include "cards.h"
 
-//функция для удаления подстроки из строки
-std::string removeAll(std::string str, const std::string& from) {
-	size_t start_pos = 0;
-	while ((start_pos = str.find(from)) != std::string::npos) {
-		str.erase(start_pos, from.length());
-	}
-	return str;
-}
-
 int main() {
-	testChooseChange();
+	srand(time(NULL));
+	COORD cursor; //для отслеживания позиции курсора
 	std::string comb, cont = "Yes";
 
 	int deck[52][2]; //первый индекс - номер карты, второй: 0 - масть, 1 - номинал
@@ -80,7 +75,7 @@ int main() {
 					if (replayChange(player_change) == -1) { 
 						std::cout << "Please, enter the different numbers of cards!" << std::endl;
 						getline(std::cin, numbers, '\n');
-						card = 1;
+						card = 0;
 						continue;
 					}
 					break;
@@ -103,7 +98,39 @@ int main() {
 				getline(std::cin, numbers, '\n');
 			}
 		}
-		changeCard(deck, user, &issued_cards, player_change);
+		changeCard(deck, user, &issued_cards, player_change); //замена карт, которые выбрал пользователь
+
+		//вывод карт игроков
+		std::cout << std::endl << std::setw(20) << "        You";
+		for (int i = 1; i <= num_bot; i++) {
+			std::string bot = "       Bot" + std::to_string(i);
+			std::cout << std::setw(20) << bot;
+		}
+		std::cout << std::endl;
+		cursor = getConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE)); //получение координат до вывода карт игроков
+		printCards(user);
+		for (int bot = 1; bot <= num_bot; bot++) {
+
+			//смещение курсора на столбец следующего игрока
+			cursor.X += 20;
+			SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor);
+
+			//коипрование карт бота во временный массив
+			int temp_card_bot[5][2];
+			for (int i = 0; i < 5; i++) {
+				temp_card_bot[i][0] = card_bots[bot - 1][i][0];
+				temp_card_bot[i][1] = card_bots[bot - 1][i][1];
+			}
+			printCards(temp_card_bot);
+		}
+
+		//возвращение курсора в начало строки со спуском на строку вниз
+		cursor = getConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE));
+		cursor.X = 0;
+		cursor.Y += 1;
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor);
+
+
 
 		//освобождение памяти, выделенную под ботов, после окончание игры
 		for (int bot = 0; bot < num_bot; bot++) {

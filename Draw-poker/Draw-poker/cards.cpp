@@ -1,6 +1,6 @@
 ﻿#include <iostream>
-#include <time.h>
 #include <string>
+#include <windows.h>
 #include <iomanip>
 #include <conio.h>
 
@@ -16,11 +16,30 @@ const char* suit[] = { "Hearts", "Diamond", "Spades", "Club" }; //указате
 const char* nominal[] = { "Deuce", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
 						  "Jack", "Queen", "King", "Ace" }; //указатели на номиналы карт
 
+//функция получения координат курсора (для printCards)
+COORD getConsoleCursorPosition(HANDLE hConsoleOutput)
+{
+	CONSOLE_SCREEN_BUFFER_INFO cbsi;
+	if (GetConsoleScreenBufferInfo(hConsoleOutput, &cbsi))
+	{
+		return cbsi.dwCursorPosition;
+	}
+	else
+	{
+		// The function failed. Call GetLastError() for details.
+		COORD invalid = { 0, 0 };
+		return invalid;
+	}
+}
+
 //функция вывода карт одного игрока
 void printCards(int const cards[][2]) {
+	COORD cursor = getConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE));
 	for (int i = 0; i <= 4; i++) {
 		cout << setw(7) << right << nominal[cards[i][0]] << " of "
-			 << setw(9) << left << suit[cards[i][1]] << endl;
+			 << setw(9) << left << suit[cards[i][1]];
+		cursor.Y += 1;
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor);
 	}
 }
 
@@ -57,18 +76,17 @@ int testDeckInit() {
 
 //функция перемешивания колоды карт из 52 карт
 void deckShuffle(int deck[][2]) {
-	srand(time(NULL));
 
 	int suit = 0, nom = 0;
-
+	int shuffling[4][13] = { 0 }; //для отслеживания повторений разданных карт
 	for (int card = 0; card <= 51; card++) {
-		suit = rand() % 3;
-		nom = rand() % 12;
-
-		while (deck[card][0] == nom || deck[card][1] == suit) {
-			suit = rand() % 3;
-			nom = rand() % 12;
+		suit = rand() % 4;
+		nom = rand() % 13;
+		while (shuffling[suit][nom] != 0) {
+			suit = rand() % 4;
+			nom = rand() % 13;
 		}
+		shuffling[suit][nom] = 1;
 		deck[card][0] = nom;
 		deck[card][1] = suit;
 	}
@@ -141,7 +159,7 @@ void testChooseChange() {
 //функция проверки на повторение номеров карт
 int replayChange(changeC* head) {
 	changeC* copy1 = head, *copy2 = head->next_card;
-	do {
+	while (copy1 == NULL) {
 		copy2 = copy1->next_card;
 		while (copy2 != NULL) {
 			if (copy1->card == copy2->card) {
@@ -150,7 +168,7 @@ int replayChange(changeC* head) {
 			copy2 = copy2->next_card;
 		}
 		copy1 = copy1->next_card;
-	} while (copy1->next_card == copy2 && copy2 == NULL);
+	} 
 	return 0;
 }
 
@@ -158,10 +176,10 @@ int replayChange(changeC* head) {
 void changeCard(int deck[][2], int players_card[][2], int* issued_cards, changeC* player) {
 	changeC* copy = player;
 	while (copy != NULL) {
-		players_card[player->card - 1][0] = deck[*issued_cards][0];
-		players_card[player->card - 1][1] = deck[*issued_cards][1];
-		copy = copy->next_card;
+		players_card[copy->card - 1][0] = deck[*issued_cards][0];
+		players_card[copy->card - 1][1] = deck[*issued_cards][1];
 		(*issued_cards)++;
+		copy = copy->next_card;
 	}
 }
 
