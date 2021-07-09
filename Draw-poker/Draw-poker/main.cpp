@@ -4,13 +4,14 @@
 #include <iomanip>
 #include <string>
 #include "cards.h"
+#include "combination.h"
 
 int main() {
 	srand(time(NULL));
 	COORD cursor; //для отслеживания позиции курсора
-	std::string comb, cont = "Yes";
+	std::string cont = "Yes", winner, comb;
 
-	int deck[52][2]; //первый индекс - номер карты, второй: 0 - масть, 1 - номинал
+	int deck[52][2]; //первый индекс - номер карты, второй: 1 - масть, 0 - номинал
 	int user[5][2]; //карты пользователя
 	int*** card_bots; //указатель на карты ботов
 	int num_bot, issued_cards; //количество ботов и счетчик выданных карт
@@ -22,6 +23,8 @@ int main() {
 		deckShuffle(deck);
 
 		issued_cards = 0;
+		comb = "";
+		winner = "User";
 
 		//ввод количества ботов
 		std::cout << "Number of bots (>=4 and <=1): ";
@@ -99,6 +102,7 @@ int main() {
 			}
 		}
 		changeCard(deck, user, &issued_cards, player_change); //замена карт, которые выбрал пользователь
+		deleteChange(player_change);
 
 		//вывод карт игроков
 		std::cout << std::endl << std::setw(20) << "        You";
@@ -130,7 +134,53 @@ int main() {
 		cursor.Y += 1;
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor);
 
+		//этап определения победителя
+		int winner_bot = 0;
+		for (int i = 0; i < num_bot; i++) {
+			int temp_bot_card[5][2];
+			for (int card = 0; card <= 4; card++) {
+				temp_bot_card[card][0] = card_bots[i][card][0];
+				temp_bot_card[card][1] = card_bots[i][card][1];
+			}
+			if (compareCombination(user, temp_bot_card, &comb) == -1) {
+				winner_bot = i;
+				winner = "Bot";
+				for (int bot = i + 1; bot < num_bot; bot++) {
+					int temp_bot_card2[5][2];
+					for (int card = 0; card <= 4; card++) {
+						temp_bot_card2[card][0] = card_bots[bot][card][0];
+						temp_bot_card2[card][1] = card_bots[bot][card][1];
+					}
+					if (compareCombination(temp_bot_card, temp_bot_card2, &comb) == -1) {
+						winner_bot = bot;
+						for (int card = 0; card <= 4; card++) {
+							temp_bot_card[card][0] = temp_bot_card2[card][0];
+							temp_bot_card[card][1] = temp_bot_card2[card][1];
+						}
+					}
+				}
+				break;
+			}
+		}
+		if (winner == "Bot")
+			winner += std::to_string(winner_bot + 1);
+		std::cout << winner << " is winner " << "(combination: " << comb << ")" << std::endl;
 
+		//желание пользователя играть заново
+		std::cout << "Do you want to play again (Yes or no)?" << std::endl;
+		std::cin >> cont;
+		for (int i = 0; cont[i] != '\0'; i++) {
+			cont[i] = toupper(cont[i]);
+		}
+		while (cont != "YES" && cont != "NO") {
+			std::cout << "Enter the correct answer!" << std::endl;
+			std::cin.clear();
+			std::cin.ignore(std::cin.rdbuf()->in_avail());
+			std::cin >> cont;
+			for (int i = 0; cont[i] != '\0'; i++) {
+				cont[i] = toupper(cont[i]);
+			}
+		}
 
 		//освобождение памяти, выделенную под ботов, после окончание игры
 		for (int bot = 0; bot < num_bot; bot++) {
